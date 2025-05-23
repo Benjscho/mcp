@@ -70,7 +70,8 @@ async def test_get_schema_throws_exception_on_empty_input():
 
 @patch('awslabs.aurora_dsql_mcp_server.server.database_user', 'admin')
 @patch('awslabs.aurora_dsql_mcp_server.server.region', 'us-west-2')
-@patch('awslabs.aurora_dsql_mcp_server.server.cluster_endpoint', 'test_ce')
+@patch('awslabs.aurora_dsql_mcp_server.server.cluster_endpoint',
+       'my_cluster.dsql.us-west-2.on.aws')
 async def test_get_password_token_for_admin_user(mocker):
     mock_client = mocker.patch('awslabs.aurora_dsql_mcp_server.server.dsql_client')
     mock_client.generate_db_connect_admin_auth_token.return_value = 'admin_token'
@@ -79,12 +80,13 @@ async def test_get_password_token_for_admin_user(mocker):
 
     assert result == 'admin_token'
 
-    mock_client.generate_db_connect_admin_auth_token.assert_called_once_with('test_ce', 'us-west-2')
+    mock_client.generate_db_connect_admin_auth_token.assert_called_once_with('my_cluster.dsql.us-west-2.on.aws', 'us-west-2')
 
 
 @patch('awslabs.aurora_dsql_mcp_server.server.database_user', 'nonadmin')
 @patch('awslabs.aurora_dsql_mcp_server.server.region', 'us-west-2')
-@patch('awslabs.aurora_dsql_mcp_server.server.cluster_endpoint', 'test_ce')
+@patch('awslabs.aurora_dsql_mcp_server.server.cluster_endpoint',
+       'my_cluster.dsql.us-west-2.on.aws')
 async def test_get_password_token_for_non_admin_user(mocker):
     mock_client = mocker.patch('awslabs.aurora_dsql_mcp_server.server.dsql_client')
     mock_client.generate_db_connect_auth_token.return_value = 'non_admin_token'
@@ -93,11 +95,12 @@ async def test_get_password_token_for_non_admin_user(mocker):
 
     assert result == 'non_admin_token'
 
-    mock_client.generate_db_connect_auth_token.assert_called_once_with('test_ce', 'us-west-2')
+    mock_client.generate_db_connect_auth_token.assert_called_once_with('my_cluster.dsql.us-west-2.on.aws', 'us-west-2')
 
 
 @patch('awslabs.aurora_dsql_mcp_server.server.database_user', 'admin')
-@patch('awslabs.aurora_dsql_mcp_server.server.cluster_endpoint', 'test_ce')
+@patch('awslabs.aurora_dsql_mcp_server.server.cluster_endpoint',
+       'my_cluster.dsql.us-west-2.on.aws')
 async def test_get_connection(mocker):
     mock_auth = mocker.patch('awslabs.aurora_dsql_mcp_server.server.get_password_token')
     mock_auth.return_value = 'auth_token'
@@ -111,7 +114,7 @@ async def test_get_connection(mocker):
     conn_params = {
         'dbname': DSQL_DB_NAME,
         'user': 'admin',
-        'host': 'test_ce',
+        'host': 'my_cluster.dsql.us-west-2.on.aws',
         'port': DSQL_DB_PORT,
         'password': 'auth_token', # pragma: allowlist secret - test credential for unit tests only
         'application_name': DSQL_MCP_SERVER_APPLICATION_NAME,
@@ -122,7 +125,8 @@ async def test_get_connection(mocker):
 
 
 @patch('awslabs.aurora_dsql_mcp_server.server.database_user', 'admin')
-@patch('awslabs.aurora_dsql_mcp_server.server.cluster_endpoint', 'test_ce')
+@patch('awslabs.aurora_dsql_mcp_server.server.cluster_endpoint',
+       'my_cluster.dsql.us-west-2.on.aws')
 @patch('awslabs.aurora_dsql_mcp_server.server.persistent_connection', None)
 async def test_get_connection_failure(mocker):
     mock_auth = mocker.patch('awslabs.aurora_dsql_mcp_server.server.get_password_token')

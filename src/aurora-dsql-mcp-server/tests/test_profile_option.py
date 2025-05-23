@@ -23,11 +23,9 @@ class TestProfileOption:
         [
             'awslabs.aurora-dsql-mcp-server',
             '--cluster_endpoint',
-            'test_ce',
+            'my_cluster.dsql.us-west-2.on.aws',
             '--database_user',
             'test_user',
-            '--region',
-            'us-west-2',
             '--profile',
             'test-profile',
         ],
@@ -65,11 +63,9 @@ class TestProfileOption:
         [
             'awslabs.aurora-dsql-mcp-server',
             '--cluster_endpoint',
-            'test_ce',
+            'my_cluster.dsql.us-west-2.on.aws',
             '--database_user',
-            'test_user',
-            '--region',
-            'us-west-2',
+            'test_user'
         ],
     )
     def test_main_without_profile_argument(self, mocker):

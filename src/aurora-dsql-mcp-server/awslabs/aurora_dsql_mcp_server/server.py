@@ -264,13 +264,32 @@ class NoOpCtx:
         """
 
 
+def extract_region_from_endpoint(endpoint: str) -> str:
+    """Extract the AWS region from a DSQL cluster endpoint.
+
+    Args:
+        endpoint: The DSQL cluster endpoint (e.g., cluster-id.dsql.us-east-1.on.aws)
+
+    Returns:
+        The AWS region (e.g., us-east-1)
+
+    Raises:
+        ValueError: If the endpoint format is invalid
+    """
+    parts = endpoint.split('.')
+    if len(parts) >= 4 and parts[1] == 'dsql':
+        return parts[2]
+    raise ValueError(f'Invalid DSQL cluster endpoint format: {endpoint}')
+
+
 async def get_password_token():  # noqa: D103
     # Generate a fresh password token for each connection, to ensure the token is not expired
     # when the connection is established
+    endpoint_region = extract_region_from_endpoint(cluster_endpoint)
     if database_user == 'admin':
-        return dsql_client.generate_db_connect_admin_auth_token(cluster_endpoint, region)  # pyright: ignore[reportOptionalMemberAccess]
+        return dsql_client.generate_db_connect_admin_auth_token(cluster_endpoint, endpoint_region)  # pyright: ignore[reportOptionalMemberAccess]
     else:
-        return dsql_client.generate_db_connect_auth_token(cluster_endpoint, region)  # pyright: ignore[reportOptionalMemberAccess]
+        return dsql_client.generate_db_connect_auth_token(cluster_endpoint, endpoint_region)  # pyright: ignore[reportOptionalMemberAccess]
 
 
 async def get_connection(ctx):  # noqa: D103
@@ -355,7 +374,6 @@ def main():
         '--cluster_endpoint', required=True, help='Endpoint for your Aurora DSQL cluster'
     )
     parser.add_argument('--database_user', required=True, help='Database username')
-    parser.add_argument('--region', required=True)
     parser.add_argument(
         '--allow-writes',
         action='store_true',
@@ -370,9 +388,6 @@ def main():
     global cluster_endpoint
     cluster_endpoint = args.cluster_endpoint
 
-    global region
-    region = args.region
-
     global database_user
     database_user = args.database_user
 
@@ -382,10 +397,16 @@ def main():
     global aws_profile
     aws_profile = args.profile
 
+    try:
+        endpoint_region = extract_region_from_endpoint(cluster_endpoint)
+    except ValueError as e:
+        logger.error(f'Failed to extract region from endpoint: {e}')
+        sys.exit(1)
+
     logger.info(
         'Aurora DSQL MCP init with CLUSTER_ENDPOINT:{}, REGION: {}, DATABASE_USER:{}, ALLOW-WRITES:{}, AWS_PROFILE:{}',
         cluster_endpoint,
-        region,
+        endpoint_region,
         database_user,
         args.allow_writes,
         aws_profile or 'default',
@@ -393,7 +414,7 @@ def main():
 
     global dsql_client
     session = boto3.Session(profile_name=aws_profile) if aws_profile else boto3.Session()
-    dsql_client = session.client('dsql', region_name=region)
+    dsql_client = session.client('dsql', region_name=endpoint_region)
 
     try:
         logger.info('Validating connection to cluster')

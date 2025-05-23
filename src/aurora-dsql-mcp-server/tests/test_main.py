@@ -23,11 +23,9 @@ class TestMain:
         [
             'awslabs.aurora-dsql-mcp-server',
             '--cluster_endpoint',
-            'test_ce',
+            'my_cluster.dsql.us-west-2.on.aws',
             '--database_user',
-            'test_user',
-            '--region',
-            'us-west-2',
+            'test_user'
         ],
     )
     def test_main_with_required_arguments(self, mocker):
@@ -39,8 +37,7 @@ class TestMain:
         main()
 
         assert awslabs.aurora_dsql_mcp_server.server.database_user == 'test_user'
-        assert awslabs.aurora_dsql_mcp_server.server.cluster_endpoint == 'test_ce'
-        assert awslabs.aurora_dsql_mcp_server.server.region == 'us-west-2'
+        assert awslabs.aurora_dsql_mcp_server.server.cluster_endpoint == 'my_cluster.dsql.us-west-2.on.aws'
         assert awslabs.aurora_dsql_mcp_server.server.read_only == True
 
         mock_execute_query.assert_called_once()
@@ -53,11 +50,9 @@ class TestMain:
         [
             'awslabs.aurora-dsql-mcp-server',
             '--cluster_endpoint',
-            'test_ce',
+            'my_cluster.dsql.us-west-2.on.aws',
             '--database_user',
             'test_user',
-            '--region',
-            'us-west-2',
             '--allow-writes',
             '--sse',
             '--port',

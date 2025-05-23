@@ -34,8 +34,6 @@ Configure the MCP server in your MCP client configuration (e.g., for Amazon Q De
         "awslabs.aurora-dsql-mcp-server@latest",
         "--cluster_endpoint",
         "[your dsql cluster endpoint]",
-        "--region",
-        "[your dsql cluster region, e.g. us-east-1]",
         "--database_user",
         "[your dsql username]",
         "--profile", "default"
@@ -85,7 +83,6 @@ aws configure export-credentials --profile your-profile-name --format env > temp
         "awslabs/aurora-dsql-mcp-server:latest",
         "--cluster_endpoint", "[your data]",
         "--database_user", "[your data]",
-        "--region", "[your data]"
       ]
     }
   }
@@ -124,7 +121,3 @@ supported:
 ```
 
 If neither is provided, the MCP server defaults to using the "default" profile in your AWS configuration file.
-
-### `--region`
-
-This is a mandatory parameter to specify the region of your DSQL database.
